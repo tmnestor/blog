@@ -88,6 +88,10 @@ GROUP_TOPICS="$(jq -r '[.groups[].topic] | join(", ")' <<< "$SETTINGS")"
 # users/OWNER/repos is GitHub's public listing: it returns public repositories
 # only, whoever asks. --paginate gives one JSON array for each page of a
 # hundred; `jq -s add` joins them into one.
+#
+# The listing is long (about 6 KB for each repository), so it only ever travels
+# on standard input (<<<). Handed to jq as an argument it is refused once it
+# passes 128 KB on Linux, which is where the site is built.
 if [[ -n "$FROM" ]]; then
     [[ -f "$FROM" ]] || stop "the saved listing is missing" "$FROM" "a JSON file" "check the path given to --from"
     WHERE="$FROM"
@@ -116,12 +120,14 @@ NOT_PUBLIC="$(jq -r '[.[] | select(.private != false or .visibility != "public")
 # ----------------------------------------------------------------------------
 # Which repositories are listed: one group topic, not a fork, not archived
 # ----------------------------------------------------------------------------
-LISTED="$(jq --argjson settings "$SETTINGS" '
+SORTED="$(jq --argjson settings "$SETTINGS" '
     ($settings.groups | map(.topic)) as $group_topics
     | [ .[]
         | select((.fork | not) and (.archived | not))
         | . + {groups: [.topics[] | select(. as $t | $group_topics | index($t))]}
-        | select(.groups | length > 0) ]' <<< "$LISTING")"
+        | select(.groups | length > 0) ] as $listed
+    | {listed: $listed, not_listed: ([.[].name] - [$listed[].name])}' <<< "$LISTING")"
+LISTED="$(jq '.listed' <<< "$SORTED")"
 
 IN_TWO="$(jq -r '[.[] | select(.groups | length > 1) | "\(.name) (\(.groups | join(", ")))"] | join("; ")' <<< "$LISTED")"
 [[ -z "$IN_TWO" ]] || stop "a repository carries more than one group topic: $IN_TWO" "the topics of that repository on GitHub" \
@@ -166,4 +172,4 @@ printf '%s\n' "$RECENT" > "$OUT/_recent.md"
 
 echo "$(jq 'length' <<< "$LISTED") repositories listed, from $(jq 'length' <<< "$LISTING") public ones of $OWNER."
 echo "Public but not listed (no group topic, a fork, or archived):"
-jq -r --argjson listed "$LISTED" '[.[].name] - [$listed[].name] | "  " + join(", ")' <<< "$LISTING"
+jq -r '"  " + (.not_listed | join(", "))' <<< "$SORTED"
