@@ -1,0 +1,8 @@
+---
+title: "Projects"
+---
+
+My public repositories on GitHub, by subject, the most recently updated first in each group. This page
+is rebuilt from GitHub every week, so it follows the repositories themselves.
+
+{{< include _projects.md >}}

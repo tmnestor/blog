@@ -1,0 +1,65 @@
+# Builds the site and publishes it to GitHub Pages:
+#   - on every push to main;
+#   - once a week, so that the Projects page follows the repositories;
+#   - by hand, from the Actions tab ("Run workflow").
+
+name: Publish the site
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # 19.17 UTC on Sunday, which is Monday morning in eastern Australia
+    - cron: "17 19 * * 0"
+  workflow_dispatch:
+
+# The token this workflow runs with reaches this repository only. It cannot read
+# any other repository of the account, private ones included.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: write
+
+# One publication at a time; a second waits for the first
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Write the list of projects from GitHub's public listing
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/projects_from_github.sh
+
+      - name: Render the site
+        run: quarto render
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      # GitHub switches a weekly schedule off when a public repository has had no
+      # activity for 60 days. Enabling the workflow again counts as activity, so
+      # each run renews its own schedule.
+      - name: Keep the weekly schedule switched on
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow enable publish.yml --repo "${{ github.repository }}"
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

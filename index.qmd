@@ -1,0 +1,15 @@
+---
+title: "T.M. Nestor"
+---
+
+I work on reading business documents with vision-language models: receipts, invoices and bank
+statements turned into fields that can be checked. Around that sit synthetic documents whose contents
+are known exactly, used to measure document parsers, and work in geophysics on elastic wave scattering
+and seismic inversion.
+
+The code is on [GitHub](https://github.com/tmnestor), and the [Projects](projects.qmd) page lists it by
+subject.
+
+## Recently updated
+
+{{< include _recent.md >}}

@@ -1,0 +1,14 @@
+# Built by Quarto
+/_site/
+/.quarto/
+
+# Written by scripts/projects_from_github.sh at every build
+/_projects.md
+/_recent.md
+
+# Tests are run on the machine they are written on
+/tests/
+
+.DS_Store
+
+**/*.quarto_ipynb
