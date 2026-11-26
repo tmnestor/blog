@@ -1,0 +1,28 @@
+# Whose public repositories the site lists, and how they are grouped.
+#
+# A repository is listed when it carries exactly one of the topics below on
+# GitHub. The headings appear on the Projects page in this order; a group with
+# no repository is left out. scripts/projects_from_github.sh reads this file.
+
+owner: tmnestor
+
+# How many of the most recently updated repositories the home page shows
+recent: 5
+
+groups:
+  - topic: document-extraction
+    heading: Document extraction with vision-language models
+  - topic: synthetic-documents
+    heading: Synthetic documents and parsing benchmarks
+  - topic: layout-and-text-models
+    heading: Layout and text models
+  - topic: vision-transformers
+    heading: Vision transformers and representation learning
+  - topic: geophysics
+    heading: Scattering and seismic inversion
+  - topic: talks
+    heading: Talks
+  - topic: tools
+    heading: Tools and infrastructure
+  - topic: experiments
+    heading: Learning and experiments

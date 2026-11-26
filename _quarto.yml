@@ -1,0 +1,24 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "T.M. Nestor"
+  site-url: https://tmnestor.github.io/blog/
+  navbar:
+    left:
+      - text: Home
+        href: index.qmd
+      - text: Projects
+        href: projects.qmd
+      - text: Sailing
+        href: sailing.qmd
+    right:
+      - icon: github
+        href: https://github.com/tmnestor
+        aria-label: GitHub
+
+format:
+  html:
+    theme: cosmo
+    toc: false
